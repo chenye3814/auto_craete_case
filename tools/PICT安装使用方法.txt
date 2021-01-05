@@ -1,0 +1,38 @@
+1
+在cmd命令行下切换到pict.exe所在的目录，如C:\Program Files\PICT。将PICT所在路径配置到环境变量->用户变量中path变量。目的是可以在任意路径下执行pict工具。如：添加D:\Program Files (x86)\PICT到用户变量中
+
+2
+创建生成用例所需的模板文件，如model.txt文件，符号都需要使用英文半角符号。
+SEX:M,F,ns
+CLASS:1,2,3,4,nc
+SCROE:OK,BAD,nsc
+
+3
+执行pict model.txt，获取正交表结果
+在pict所在目录下执行：
+D:\Program Files (x86)\PICT>pict model.txt
+或在任意位置执行：
+pict C:\Users\Administrator\Desktop\model.txt
+注意，pict后面的filepath中不能含有空格，否则会被识别成两层目录，如Program Files (x86)会被识别成Program\Files\(x86)
+运行结果：SEX     CLASS   SCROE
+M       4       BAD
+M       1       nsc
+M       nc      OK
+ns      2       nsc
+F       1       OK
+F       3       nsc
+ns      4       OK
+F       nc      nsc
+F       4       nsc
+ns      3       BAD
+ns      1       BAD
+M       3       OK
+F       nc      BAD
+F       2       BAD
+ns      nc      OK
+M       2       OK
+
+注意：如果参数文件中有中文的话，多数会显示中文乱码，因为编码方式的问题，pict仅仅支持ANSI和UTF8 ，保存为UTF8仍然乱码，则另存为ANSI就可以了
+
+4
+将每一行转换成1个测试用例。同时补充可疑场景用例。
