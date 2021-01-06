@@ -48,27 +48,70 @@ class search_create():
         else:
             return False
 
+    def check_encode(self):
+        """检查当前文件的编码"""
+        with open(self.file_path, 'rb') as f1:
+            content = f1.read()
+            # print(type(content)),返回类型为bytes
+            # chardet.detect()函数会返回当前读取对象的编码
+            encode = chardet.detect(content)
+            f1.close()
+            file_encode = encode['encoding']
+        return file_encode
+
     def change_encode(self):
         """如果文件非ANSI编码，转为ANSI编码"""
         # 简体中文系统下，ANSI 编码代表 GB2312 编码
-        with open(self.file_path, 'rb') as f:
-            encode = chardet.detect(f.read())
-            if encode['encoding'] != 'GB2312':
-                print(encode)
-            print(type(encode))
+        file_encode = self.check_encode()
+        # print('file_encode:', file_encode)
 
+        if file_encode != 'GB2312':
+            # 目前只能把utf-8文件转为gb2312，其他编码方式暂时不行
+            print(self.file_path + '文件编码方式不正确,准备进行转编码...')
+            # 获取文件文本内容
+            with open(self.file_path, 'rb') as f:
+                content = f.read()
+                f.close()
+            if file_encode == 'utf-8':
+                # 因为指定了写的编码方式：encoding='GB2312'，需要将bytes类型的content转为str后，才能顺利写入文件
+                con = str(content, encoding='utf-8')
+                with open(self.file_path, 'w', encoding='GB2312') as fw:
+                    try:
+                        fw.write(con)
+                        fw.close()
+                        print('编码成功')
+                    except Exception as e:
+                        print('文件编码失败', e)
+                        return False
+            else:
+                print(self.file_path, '暂时无法编码')
+                return False
+        else:
+            # print('编码方式正确')
+            pass
 
 if __name__ == '__main__':
+    """
     for i in range(1, 10):
         filepath = R'../file_dirs/order%s.txt' % i
         # print(filepath)
         a = search_create(file_path=filepath)
-        a.change_encode()
-        li = a.one_step_create()
-        # print(li)
-        print(len(li))
+        if a.change_encode() is not False:
+        # a.change_encode()
+            li = a.one_step_create()
+            # print(li)
+            print(len(li))
+        else:
+            print('文件编码时出现错误')
+    """
     # for i in li:
     #     print(i)
-    # b = search_create(file_path=R'C:\Users\Administrator\Desktop\order1.txt')
-    # li2 = b.one_step_create()
+    b = search_create(file_path=R'../file_dirs/order1.txt')
+    if b.change_encode() is not False:
+        li2 = b.one_step_create()
     # print(li2)
+        print(len(li2))
+        for j in li2:
+            print(j)
+    else:
+        print("出错了")
