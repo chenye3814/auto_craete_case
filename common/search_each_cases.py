@@ -2,15 +2,29 @@ import xlrd
 from pypinyin import lazy_pinyin
 import random
 import string
+from common.base_data import base_data
 
 aa = {'para': '客户昵称',
       'type': 'input',
-      'input_rules': "{'input_char': 'cn', 'input_len': '5', 'input_like': 'yes', 'deal_space':'yes'}",
-      'target': '赵哥'
+      'input_rules': "{'input_char': 'NUM', 'input_len': '10', 'input_like': 'y', 'deal_space':'y'}",
+      'target': '432'
       }
 
+bb = {'para': '订单金额',
+      'type': 'range',
+      'input_rules': {'data_unit': '0.01', },
+      'target': '99'
+      }
 
-class search_own(object):
+cc = {'para': '创建时间',
+      'type': 'range',
+      'input_rules': {'time_unit': '秒', },
+      'target': '2021-01-06 23:15:23'
+      }
+# 时间类的范围为：年、月、日、时、分、秒
+
+
+class search_case(base_data):
     def __init__(self, temp_dict):
         self.target = temp_dict['target']
         self.input_rules = eval(temp_dict['input_rules'])
@@ -18,38 +32,11 @@ class search_own(object):
         self.para = temp_dict['para']
 
     def be_case(self, test_data, result='fail'):
-        """生成用例，temp_para为测试数据，result为期望结果,result为 succ or fail，默认为'fail',因为大部分数据设计的是无效等价类"""
+        """生成用例，
+        :test_data：测试数据
+        :result：期望结果,result为 succ or fail，默认为'fail',因为大部分数据设计的是无效等价类"""
         case_one = {'value': test_data, 'result': result}
         return case_one
-
-    def cn_test_data(self):
-        """随机生成一位中文字符,用于字符类型限制的测试数据生成"""
-        cns = ["伟", "华", "建", "国", "洋", "刚", "里", "万", "爱", "民", "牧", "陆", "路", "昕", "鑫", "兵", "硕", "志", "宏", "峰", "磊",
-               "雷", "文", "明", "浩", "光", "超", "军", "达"]
-        random_cn = random.choice(cns)
-        return random_cn
-
-    def cn_to_pinyin(self, temp):
-        """中文转为拼音,使用lazy_pinyin()函数转为拼音，该函数返回的是数组，如：['zhao', 'ge']
-        ,用于字符类型限制的测试数据生成"""
-        temp_en = ''.join(lazy_pinyin(temp))
-        return temp_en
-
-    def en_test_data(self):
-        """随机生成一位英文字母,用于字符类型限制的测试数据生成"""
-        random_str = ''.join(random.sample(string.ascii_letters, 1))
-        return random_str
-
-    def num_test_data(self):
-        """生成随机数字,用于字符类型限制的测试数据生成"""
-        random_num = random.randint(1, 9)
-        return str(random_num)
-
-    def sp_test_data(self):
-        """特殊字符生成的列表，需要添加新的则在value_sp里面加即可，用空格隔开,用于字符类型限制的测试数据生成"""
-        value_sp = '# , * + - / \" \' $ % ( : ; ? \\ &'
-        sp_list = value_sp.split(' ')
-        return sp_list
 
     def sp_test_case(self, sp_list, temp):
         """用于参数与特殊字符组合生成测试数据,然后生成用例列表,用于字符类型限制的测试数据生成
@@ -60,7 +47,7 @@ class search_own(object):
         if isinstance(sp_list, list):
             for i in sp_list:
                 temp_i = str(temp)[0] + str(i)
-                temp_j = str(i)+str(temp)
+                temp_j = str(i) + str(temp)
                 case_1 = self.be_case(temp_i)
                 case_2 = self.be_case(temp_j)
                 case_list.extend([case_1, case_2])
@@ -90,58 +77,105 @@ class search_own(object):
                 ca_list.extend([case_1, case_2, case_3])
         return ca_list
 
-    def input_test_data(self):
+    def input_test_case(self):
         """文本输入类的用例数据生成"""
-        if self.type == 'input':
+        if self.type.lower() == 'input':
             case_list = []
             # 将目标作为测试数据，期望结果为正确
             right_case = self.be_case(test_data=self.target, result='succ')
             case_list.append(right_case)
-            if self.input_rules['input_char']:
-                if self.input_rules['input_char'] == 'cn':
+            if 'input_char' in self.input_rules.keys():
+                print("生成字符限制类用例...")
+                if self.input_rules['input_char'].lower() == 'cn':
                     # 思考这里如何简化，当指定一种类型时，自动将另外三中错误字符生成用用例，
                     # 是否需要用到for循环去生成，还是把上面的value分装在字典还是什么里面
-                    cn_use = [self.cn_to_pinyin(self.target), self.en_test_data(), self.num_test_data(), self.sp_test_data()]
+                    cn_use = [self.cn_to_pinyin(self.target), self.en_test_data(), self.num_test_data(),
+                              self.sp_test_data()]
                     case_list = self.travel_data_case(ca_list=case_list, def_list=cn_use)
 
-                elif self.input_rules['input_char'] == 'en':
+                elif self.input_rules['input_char'].lower() == 'en':
                     # 后面要考虑加入大小写
                     en_use = [self.cn_test_data(), self.num_test_data(), self.sp_test_data()]
                     case_list = self.travel_data_case(ca_list=case_list, def_list=en_use)
 
-                elif self.input_rules['input_char'] == 'num':
+                elif self.input_rules['input_char'].lower() == 'num':
                     num_use = [self.cn_test_data(), self.en_test_data(), self.sp_test_data()]
                     case_list = self.travel_data_case(ca_list=case_list, def_list=num_use)
 
                 else:
-                    print("输入字符类型为cn/en/num时才能创建用例，请检查<input_char>值是否正确")
-        return case_list
-"""
-            if self.input_rules['input_len']:
-                n = eval(self.input_rules['input_len'])
-                # m = len(target)
-                a = n - 1
-                b = n + 1
-                # shang = n/m
-                case_len_a = n * '赵'
-                case_len_b = a * '赵'
-                case_len_c = b * '赵'
+                    print("无法生成字符校验无效等价类用例，请检查<input_char>值是否为cn/en/num ！")
 
-            if self.input_rules['input_like']:
-                if self.input_rules['input_like'] == 'yes':
-                    case_like_a = self.target
-                    case_like_b = self.target[1]
-                    case_like_c = self.target * 2
+            if 'input_len' in self.input_rules.keys():
+                print("生成长度限制类用例...")
+                # 长度校验主要通过边界值法进行创建，一半规定输入最多限制输入位数进行搜索，不会限制最少输入位数
+                try:
+                    max_len = eval(self.input_rules['input_len'])
+                    if isinstance(max_len, int):
+                        less_len = max_len - 1
+                        over_len = max_len + 1
+                        case_len_1 = self.be_case(test_data=max_len*self.target[0], result='succ')
+                        case_len_2 = self.be_case(test_data=less_len*self.target[0], result='succ')
+                        case_len_3 = self.be_case(test_data=over_len*self.target[0])
+                        case_list.extend([case_len_1, case_len_2, case_len_3])
+                    else:
+                        print('无法生成长度校验用例，max_len非数字，请检查<input_len>值是否为数字字符串！')
+                except Exception as e:
+                    print(e)
+
+            if 'input_like' in self.input_rules.keys():
+                print("生成模糊搜索限制类用例...")
+                # y表示支持模糊搜索，n表示精确搜索
+                if self.input_rules['input_like'].lower() == 'y':
+                    case_like_1 = self.be_case(test_data=self.target[:-1], result='succ')
+                    case_like_2 = self.be_case(test_data=self.target[0], result='succ')
+                    case_like_3 = self.be_case(test_data=self.target + self.cn_test_data())
+                    case_list.extend([case_like_1, case_like_2, case_like_3])
+                elif self.input_rules['input_like'].lower() == 'n':
+                    case_like_4 = self.be_case(test_data=self.target[:-1])
+                    case_like_5 = self.be_case(self.target * 2)
+                    case_like_6 = self.be_case(self.target + self.cn_test_data())
+                    case_list.extend([case_like_4, case_like_5, case_like_6])
                 else:
-                    case_like_a = self.target
-                    case_like_b = self.target[1]
-                    case_like_c = self.target * 2
-"""
+                    print('无法生成精确/模糊搜索用例，请检查<input_like>是否为 y 或 n ')
+
+            if 'deal_space' in self.input_rules.keys():
+                print("生成过滤空格限制类用例...")
+                # y表示会过滤空格，n表示不会过滤空格
+                if self.input_rules['deal_space'].lower() == 'y':
+                    case_space_1 = self.be_case(self.target + ' ', result='succ')
+                    case_space_2 = self.be_case(' ' + self.target, result='succ')
+                    case_space_4 = self.be_case(' ', result='succ')
+                    case_list.extend([case_space_1, case_space_2, case_space_4])
+                    if len(self.target) > 1:
+                        case_space_3 = self.be_case(self.add_space(self.target), result='succ')
+                        case_list.append(case_space_3)
+
+                elif self.input_rules['deal_space'].lower() == 'n':
+                    case_space_1 = self.be_case(self.target + ' ')
+                    case_space_2 = self.be_case(' ' + self.target)
+                    case_space_3 = self.be_case(' ')
+                    case_list.extend([case_space_1, case_space_2, case_space_3])
+                    if len(self.target) > 1:
+                        case_space_4 = self.be_case(self.add_space(self.target))
+                        case_list.append(case_space_4)
+
+            return case_list
+        else:
+            print('非input类型的输入')
+
+    def range_test_case(self):
+        """输入范围类的用例生成"""
+        if self.type.lower() == 'range':
+            pass
+        else:
+            print("非range类输入")
+
+
 
 if __name__ == '__main__':
-    pass
-    # case = search_own(temp_dict=aa)
-    # cases = case.input_test_data()
-    # print(len(cases))
-    # for i in cases:
-    #     print(i)
+    # pass
+    case = search_case(temp_dict=aa)
+    cases = case.input_test_case()
+    print(len(cases))
+    for i in cases:
+        print(i)
