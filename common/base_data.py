@@ -16,6 +16,13 @@ import string
 
 
 class base_data(object):
+    def be_case(self, test_data, result='fail'):
+        """生成用例，
+        :test_data：测试数据
+        :result：期望结果,result为 succ or fail，默认为'fail',因为大部分数据设计的是无效等价类"""
+        case_one = {'value': test_data, 'result': result}
+        return case_one
+
     def cn_test_data(self):
         """随机生成一位中文字符,用于字符类型限制的测试数据生成"""
         cns = ["伟", "华", "建", "国", "洋", "刚", "里", "万", "爱", "民", "牧", "陆", "路", "昕", "鑫", "兵", "硕", "志", "宏", "峰", "磊",

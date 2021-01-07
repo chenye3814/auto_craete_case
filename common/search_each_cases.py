@@ -12,13 +12,13 @@ aa = {'para': '客户昵称',
 
 bb = {'para': '订单金额',
       'type': 'range',
-      'input_rules': {'data_unit': '0.01', },
+      'input_rules': "{'data_type': 'num_data', 'unit': '0.01'}",
       'target': '99'
       }
 
 cc = {'para': '创建时间',
       'type': 'range',
-      'input_rules': {'time_unit': '秒', },
+      'input_rules': "{'data_type': 'time_data', 'unit': '秒', }",
       'target': '2021-01-06 23:15:23'
       }
 # 时间类的范围为：年、月、日、时、分、秒
@@ -30,13 +30,6 @@ class search_case(base_data):
         self.input_rules = eval(temp_dict['input_rules'])
         self.type = temp_dict['type']
         self.para = temp_dict['para']
-
-    def be_case(self, test_data, result='fail'):
-        """生成用例，
-        :test_data：测试数据
-        :result：期望结果,result为 succ or fail，默认为'fail',因为大部分数据设计的是无效等价类"""
-        case_one = {'value': test_data, 'result': result}
-        return case_one
 
     def sp_test_case(self, sp_list, temp):
         """用于参数与特殊字符组合生成测试数据,然后生成用例列表,用于字符类型限制的测试数据生成
@@ -166,7 +159,26 @@ class search_case(base_data):
     def range_test_case(self):
         """输入范围类的用例生成"""
         if self.type.lower() == 'range':
-            pass
+            case_list = []
+            if self.input_rules['data_type'].lower() == 'num_data':
+                unit = eval(self.input_rules['unit'])
+                over_data = self.sum_data(self.target, unit)
+                over_more = self.sum_data(self.target, unit*2)
+                less_data = self.subtr_data(self.target, unit)
+                less_more = self.subtr_data(self.target, unit*2)
+                case_1 = self.be_case({'start': less_data, 'end': over_data}, result='succ')
+                case_2 = self.be_case({'start': less_data, 'end': ''}, result='succ')
+                case_3 = self.be_case({'start': '', 'end': over_data}, result='succ')
+                case_4 = self.be_case({'start': less_more, 'end': less_data})
+                case_5 = self.be_case({'start': over_data, 'end': over_more})
+                case_6 = self.be_case({'start': over_data, 'end': ''})
+                case_7 = self.be_case({'start': '', 'end': less_data})
+                case_8 = self.be_case({'start': over_data, 'end': less_data})
+                for i in range(1, 9):
+
+
+
+                pass
         else:
             print("非range类输入")
 
