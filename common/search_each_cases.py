@@ -139,8 +139,9 @@ class search_own(object):
 """
 
 if __name__ == '__main__':
-    case = search_own(temp_dict=aa)
-    cases = case.input_test_data()
-    print(len(cases))
-    for i in cases:
-        print(i)
+    pass
+    # case = search_own(temp_dict=aa)
+    # cases = case.input_test_data()
+    # print(len(cases))
+    # for i in cases:
+    #     print(i)
