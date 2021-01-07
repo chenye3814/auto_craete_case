@@ -5,7 +5,7 @@ import string
 
 aa = {'para': '客户昵称',
       'type': 'input',
-      'input_rules': "{'input_char': 'cn', 'input_len': '5', 'input_like': 'yes'}",
+      'input_rules': "{'input_char': 'cn', 'input_len': '5', 'input_like': 'yes', 'deal_space':'yes'}",
       'target': '赵哥'
       }
 
