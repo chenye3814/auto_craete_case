@@ -3,16 +3,7 @@ import datetime
 import random
 from pypinyin import lazy_pinyin
 import string
-
-
-# strTime = '2019-07-11 11:03:50'  # 给定一个时间，此是个字符串
-# startTime = datetime.datetime.strptime(strTime, "%Y-%m-%d %H:%M:%S")  # 把strTime转化为时间格式,后面的秒位自动补位的
-# print(startTime)
-# print(type(startTime))
-# print(startTime.strftime("%Y-%m-%d %H:%M:%S")) # 格式化输出，保持和给定格式一致
-# # startTime时间加 一分钟
-# startTime2 = (startTime + datetime.timedelta(seconds=1)).strftime("%Y-%m-%d %H:%M:%S")
-# print(startTime2)
+import re
 
 
 class base_data(object):
@@ -61,22 +52,54 @@ class base_data(object):
             str_list.insert(1, ' ')
             return ''.join(str_list)
 
-    def sum_data(self, data, unit):
+    def sum_data(self, data, unit, times=1):
         """计算 目标值 加 最小单位的值
         :data：目标值
         :unit：数字最小单位
+        :times：最小单位的倍数，用于计算加减任何值
         """
-        sum_data = data + unit
+        data = eval(data)
+        unit = eval(unit)
+        sum_data = data + unit*times
         return sum_data
 
-    def subtr_data(self, data, unit):
+    def subtr_data(self, data, unit, times=1):
         """计算 目标值 减 最小单位的值
         :data：目标值
         :unit：数字最小单位
+        :times：最小单位的倍数，用于计算加减任何值
         """
-        subtr_data = data - unit
+        data = eval(data)
+        unit = eval(unit)
+        subtr_data = data - unit*times
         return subtr_data
 
+    def find_time_strp(self, str_time):
+        """获取输入的时间字符串，返回其时间格式，如：%Y-%m-%d %H:%M:%S
+        ：str_time：时间字符串
+        return：time_strp：时间格式"""
+        regex_strp_dict = {r'\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}': '%Y-%m-%d %H:%M:%S',
+                           r'\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}': '%Y-%m-%d %H:%M',
+                           r'\d{4}-\d{1,2}-\d{1,2} \d{1,2}': '%Y-%m-%d %H',
+                           r'\d{4}-\d{1,2}-\d{1,2}': '%Y-%m-%d',
+                           r'\d{4}-\d{1,2}': '%Y-%m',
+                           r'\d{4}': '%Y',
+                           r'\d{4}/\d{1,2}/\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}': '%Y/%m/%d %H:%M:%S',
+                           r'\d{4}/\d{1,2}/\d{1,2} \d{1,2}:\d{1,2}': '%Y/%m/%d %H:%M',
+                           r'\d{4}/\d{1,2}/\d{1,2} \d{1,2}': '%Y/%m/%d %H',
+                           r'\d{4}/\d{1,2}/\d{1,2}': '%Y/%m/%d',
+                           r'\d{4}/\d{1,2}': '%Y/%m',
+                           }
+        time_strp = False
+        for regex in regex_strp_dict.keys():
+            mat = re.fullmatch(regex, str_time)
+            if mat is not None:
+                time_strp = regex_strp_dict[regex]
+                break
+        return time_strp
+
+    def date_data(self, str_time, time_strp):
+        """把strTime转化为时间格式,后面的秒位自动补位的""
 
 
 
