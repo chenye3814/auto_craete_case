@@ -18,8 +18,8 @@ bb = {'para': '订单金额',
 
 cc = {'para': '创建时间',
       'type': 'range',
-      'input_rules': "{'data_type': 'time_data', 'unit': '秒', }",
-      'target': '2021-01-06 23:15:23'
+      'input_rules': "{'data_type': 'time_data', 'unit': '时', }",
+      'target': '2021-01-06 03'
       }
 # 时间类的范围为：年、月、日、时、分、秒
 
@@ -68,6 +68,20 @@ class search_case(base_data):
                 case_2 = self.be_case(test_data=self.target + data)
                 case_3 = self.be_case(test_data=data + self.target)
                 ca_list.extend([case_1, case_2, case_3])
+        return ca_list
+
+    def range_data_list(self, ca_list, less_more, less_data, over_data, over_more):
+        """根据"""
+        case_1 = self.be_case({'start': less_data, 'end': over_data}, result='succ')
+        case_2 = self.be_case({'start': less_data, 'end': ''}, result='succ')
+        case_3 = self.be_case({'start': '', 'end': over_data}, result='succ')
+        case_4 = self.be_case({'start': less_more, 'end': less_data})
+        case_5 = self.be_case({'start': over_data, 'end': over_more})
+        case_6 = self.be_case({'start': over_data, 'end': ''})
+        case_7 = self.be_case({'start': '', 'end': less_data})
+        case_8 = self.be_case({'start': over_data, 'end': less_data})
+        for i in range(1, 9):
+            ca_list.append(eval('case_%s' % str(i)))
         return ca_list
 
     def input_test_case(self):
@@ -162,20 +176,18 @@ class search_case(base_data):
             case_list = []
             if self.input_rules['data_type'].lower() == 'num_data':
                 unit = self.input_rules['unit']
-                over_data = self.sum_data(self.target, unit)
-                over_more = self.sum_data(self.target, unit, 2)
-                less_data = self.subtr_data(self.target, unit)
-                less_more = self.subtr_data(self.target, unit, 2)
-                case_1 = self.be_case({'start': less_data, 'end': over_data}, result='succ')
-                case_2 = self.be_case({'start': less_data, 'end': ''}, result='succ')
-                case_3 = self.be_case({'start': '', 'end': over_data}, result='succ')
-                case_4 = self.be_case({'start': less_more, 'end': less_data})
-                case_5 = self.be_case({'start': over_data, 'end': over_more})
-                case_6 = self.be_case({'start': over_data, 'end': ''})
-                case_7 = self.be_case({'start': '', 'end': less_data})
-                case_8 = self.be_case({'start': over_data, 'end': less_data})
-                for i in range(1, 9):
-                    case_list.append(eval('case_%s' % str(i)))
+                over_data = self.cul_data(self.target, unit)
+                over_more = self.cul_data(self.target, unit, 2)
+                less_data = self.cul_data(self.target, unit, -1)
+                less_more = self.cul_data(self.target, unit, -2)
+                case_list = self.range_data_list(case_list, less_more, less_data, over_data, over_more)
+            elif self.input_rules['data_type'].lower() == 'time_data':
+                unit = self.input_rules['unit']
+                over_data = self.cul_time(self.target, d_value=1, dw=unit)
+                over_more = self.cul_time(self.target, d_value=2, dw=unit)
+                less_data = self.cul_time(self.target, d_value=-1, dw=unit)
+                less_more = self.cul_time(self.target, d_value=-2, dw=unit)
+                case_list = self.range_data_list(case_list, less_more, less_data, over_data, over_more)
 
             return case_list
         else:
@@ -184,7 +196,7 @@ class search_case(base_data):
 
 if __name__ == '__main__':
     # pass
-    case = search_case(temp_dict=bb)
+    case = search_case(temp_dict=cc)
     cases = case.range_test_case()
     print(len(cases))
     for i in cases:

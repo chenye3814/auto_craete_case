@@ -4,6 +4,7 @@ import random
 import string
 import datetime
 import re
+from dateutil.relativedelta import relativedelta
 
 strTime = '2019-07-11 11:13'  # 给定一个时间，此是个字符串
 
@@ -11,10 +12,12 @@ strTime_1 = '2019-06'
 startTime = datetime.datetime.strptime(strTime, "%Y-%m-%d %H:%M")  # 把strTime转化为时间格式,后面的秒位自动补位的
 print(startTime)
 print(type(startTime))
-print(startTime.strftime("%Y-%m-%d %H:%M:%S")) # 格式化输出，保持和给定格式一致
+print(startTime.strftime("%Y-%m-%d %H:%M")) # 格式化输出，保持和给定格式一致
 # startTime时间加 一分钟
-startTime2 = (startTime + datetime.timedelta(seconds=1)).strftime("%Y-%m-%d %H:%M:%S")
-# print(startTime2)
+startTime2 = (startTime + datetime.timedelta(seconds=1)).strftime("%Y-%m-%d %H:%M")
+startTime3 = startTime + relativedelta(months=-1)
+print('startTime2', startTime2)
+print('startTime3', startTime3)
 
 print('-----------------------------')
 # time_strp_list = ['0000-00-00 00:00:00', '0000-00-00 00:00', '0000-00-00 00', '0000-00-00']
